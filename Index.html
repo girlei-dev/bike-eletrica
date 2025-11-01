@@ -3,176 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel E-Bike Caseira</title>
+    <title>Galeria de Projetos E-Bike DIY</title>
     
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            background-color: #f0f0f0;
+            padding: 0;
+            background-color: #e9ecef;
             color: #333;
+            text-align: center;
         }
 
-        .dashboard {
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
             background-color: #fff;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            width: 90%;
-            max-width: 400px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
             color: #007bff;
-            margin-bottom: 25px;
+            margin-bottom: 10px;
         }
 
-        .data-item {
+        p {
+            margin-bottom: 30px;
+            color: #666;
+        }
+
+        /* Área da Foto Principal (Carrossel) */
+        .main-photo-area {
+            position: relative;
             margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #ddd;
+        }
+
+        #main-photo {
+            width: 100%;
+            height: 450px; /* Altura fixa para consistência */
+            object-fit: cover; /* Garante que a imagem cubra a área sem distorcer */
             border-radius: 10px;
-            background-color: #e9ecef;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.5s ease-in-out;
         }
 
-        .label {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-        }
-
-        .value {
-            font-size: 2em;
-            color: #28a745; /* Cor para valores importantes */
-        }
-
-        #battery-level {
-            color: #ffc107; /* Amarelo para bateria */
-        }
-        
-        .control-button {
-            background-color: #dc3545;
+        /* Botões do Carrossel */
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
             color: white;
             border: none;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin-top: 20px;
+            padding: 15px 10px;
             cursor: pointer;
+            font-size: 1.5em;
+            z-index: 10;
             border-radius: 5px;
             transition: background-color 0.3s;
         }
 
-        .control-button:hover {
-            background-color: #c82333;
+        .nav-button:hover {
+            background-color: rgba(0, 0, 0, 0.8);
         }
 
-        .status-light {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-left: 10px;
-            vertical-align: middle;
-            background-color: red;
-            transition: background-color 0.5s;
+        #prev-btn {
+            left: 10px;
         }
 
-        .status-on {
-            background-color: green;
+        #next-btn {
+            right: 10px;
+        }
+
+        /* Galeria de Miniaturas */
+        .thumbnail-gallery {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap; /* Para telas menores */
+        }
+
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            opacity: 0.7;
+            transition: opacity 0.3s, border 0.3s;
+        }
+
+        .thumbnail:hover {
+            opacity: 1;
+        }
+
+        .thumbnail.active {
+            border-color: #007bff;
+            opacity: 1;
+        }
+
+        /* Responsividade básica */
+        @media (max-width: 768px) {
+            #main-photo {
+                height: 300px;
+            }
+            .thumbnail {
+                width: 60px;
+                height: 60px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="dashboard">
-        <h1>🛠️ Painel E-Bike Caseira</h1>
+    <div class="container">
+        <h1>🔧 Inspiração E-Bike Caseira</h1>
+        <p>Confira alguns exemplos e designs de projetos DIY de bicicletas elétricas.</p>
 
-        <div class="data-item">
-            <span class="label">Velocidade Atual (Km/h)</span>
-            <span class="value" id="speed-value">0</span>
+        <div class="main-photo-area">
+            <img id="main-photo" src="" alt="Foto Principal do Projeto de Bike Elétrica">
+            
+            <button id="prev-btn" class="nav-button">❮</button>
+            <button id="next-btn" class="nav-button">❯</button>
         </div>
 
-        <div class="data-item">
-            <span class="label">Nível da Bateria (%)</span>
-            <span class="value" id="battery-level">100</span>
-        </div>
-
-        <div class="data-item">
-            <span class="label">Status do Motor</span>
-            <button class="control-button" id="motor-button">Ligar/Desligar Motor</button>
-            <span class="status-light" id="motor-status-light"></span>
-        </div>
+        <div class="thumbnail-gallery" id="thumbnail-gallery">
+            </div>
     </div>
 
     <script>
-        // Variáveis de estado
-        let currentSpeed = 0;
-        let batteryPercentage = 100;
-        let isMotorOn = false;
+        // Array de URLs das fotos de projetos (Usei URLs de Placeholder)
+        const projectImages = [
+            'https://picsum.photos/id/257/800/600', // Exemplo 1: Motor de cubo
+            'https://picsum.photos/id/258/800/600', // Exemplo 2: Bateria em caixa customizada
+            'https://picsum.photos/id/259/800/600', // Exemplo 3: Bicicleta de carga elétrica
+            'https://picsum.photos/id/260/800/600', // Exemplo 4: Motor de tração central
+            'https://picsum.photos/id/261/800/600'  // Exemplo 5: Projeto minimalista
+        ];
 
-        // Elementos do DOM
-        const speedValue = document.getElementById('speed-value');
-        const batteryLevel = document.getElementById('battery-level');
-        const motorButton = document.getElementById('motor-button');
-        const motorStatusLight = document.getElementById('motor-status-light');
+        let currentImageIndex = 0;
+        
+        const mainPhoto = document.getElementById('main-photo');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const thumbnailGallery = document.getElementById('thumbnail-gallery');
 
-        // Função para atualizar os dados no painel (Simulação)
-        function updateDashboard() {
-            // SIMULAÇÃO: Aumenta a velocidade se o motor estiver ligado
-            if (isMotorOn) {
-                currentSpeed += Math.random() * 5; // Simula aceleração
-                if (currentSpeed > 40) currentSpeed = 40; // Limite de velocidade
-                batteryPercentage -= 0.1; // Simula consumo de bateria
-                if (batteryPercentage < 0) batteryPercentage = 0;
-            } else {
-                currentSpeed *= 0.95; // Simula desaceleração
-                if (currentSpeed < 0.5) currentSpeed = 0;
-            }
-            
-            // Atualiza os valores na tela
-            speedValue.textContent = currentSpeed.toFixed(1); // 1 casa decimal
-            batteryLevel.textContent = batteryPercentage.toFixed(0); // Sem casas decimais
+        // 1. Função para carregar a imagem principal
+        function loadMainImage(index) {
+            mainPhoto.src = projectImages[index];
+            currentImageIndex = index;
+            updateActiveThumbnail();
+        }
 
-            // Alerta visual para bateria baixa
-            if (batteryPercentage < 20) {
-                batteryLevel.style.color = '#dc3545'; // Vermelho
-            } else {
-                batteryLevel.style.color = '#ffc107'; // Amarelo padrão
+        // 2. Função para criar as miniaturas
+        function createThumbnails() {
+            projectImages.forEach((url, index) => {
+                const img = document.createElement('img');
+                img.src = url;
+                img.alt = `Miniatura do Projeto ${index + 1}`;
+                img.classList.add('thumbnail');
+                
+                // Evento de clique na miniatura
+                img.addEventListener('click', () => {
+                    loadMainImage(index);
+                });
+                
+                thumbnailGallery.appendChild(img);
+            });
+        }
+
+        // 3. Função para atualizar o destaque da miniatura ativa
+        function updateActiveThumbnail() {
+            // Remove a classe 'active' de todas
+            document.querySelectorAll('.thumbnail').forEach((thumb) => {
+                thumb.classList.remove('active');
+            });
+
+            // Adiciona a classe 'active' à miniatura atual
+            if (thumbnailGallery.children[currentImageIndex]) {
+                thumbnailGallery.children[currentImageIndex].classList.add('active');
             }
         }
 
-        // Função de controle do motor
-        function toggleMotor() {
-            isMotorOn = !isMotorOn;
-            
-            if (isMotorOn) {
-                motorButton.textContent = 'Desligar Motor';
-                motorStatusLight.classList.add('status-on');
-                motorButton.style.backgroundColor = '#28a745'; // Cor verde para ligado
-            } else {
-                motorButton.textContent = 'Ligar/Desligar Motor';
-                motorStatusLight.classList.remove('status-on');
-                motorButton.style.backgroundColor = '#dc3545'; // Cor vermelha para desligado
-            }
+        // 4. Funções de navegação do carrossel
+        function nextImage() {
+            currentImageIndex = (currentImageIndex + 1) % projectImages.length;
+            loadMainImage(currentImageIndex);
         }
 
-        // Adiciona o evento de clique ao botão
-        motorButton.addEventListener('click', toggleMotor);
+        function prevImage() {
+            currentImageIndex = (currentImageIndex - 1 + projectImages.length) % projectImages.length;
+            loadMainImage(currentImageIndex);
+        }
 
-        // Chama a função de atualização a cada 500ms (meio segundo)
-        // Em um projeto real, isso seria substituído por uma leitura de dados via Serial/Bluetooth/Wi-Fi
-        setInterval(updateDashboard, 500);
+        // 5. Adiciona eventos aos botões
+        nextBtn.addEventListener('click', nextImage);
+        prevBtn.addEventListener('click', prevImage);
 
+        // Inicia a galeria
+        createThumbnails();
+        loadMainImage(0); // Carrega a primeira imagem ao iniciar
     </script>
 </body>
 </html>
